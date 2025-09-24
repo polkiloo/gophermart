@@ -6,18 +6,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/polkiloo/gophermart/internal/app"
 	domainErrors "github.com/polkiloo/gophermart/internal/domain/errors"
 	"github.com/polkiloo/gophermart/internal/server/http/dto"
 )
 
 // BalanceHandler manages balance-related endpoints.
 type BalanceHandler struct {
-	facade *app.LoyaltyFacade
+	facade BalanceFacade
 }
 
 // NewBalanceHandler constructs BalanceHandler.
-func NewBalanceHandler(facade *app.LoyaltyFacade) *BalanceHandler {
+func NewBalanceHandler(facade BalanceFacade) *BalanceHandler {
 	return &BalanceHandler{facade: facade}
 }
 

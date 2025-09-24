@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/polkiloo/gophermart/internal/app"
 	pkgAuth "github.com/polkiloo/gophermart/internal/pkg/auth"
 )
 
@@ -16,8 +15,12 @@ const (
 	authCookieName   = "gophermart_token"
 )
 
+type TokenParser interface {
+	ParseToken(token string) (int64, error)
+}
+
 // AuthRequired ensures user is authenticated before accessing handler.
-func AuthRequired(facade *app.LoyaltyFacade) gin.HandlerFunc {
+func AuthRequired(parser TokenParser) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := extractToken(c)
 		if token == "" {
@@ -25,7 +28,7 @@ func AuthRequired(facade *app.LoyaltyFacade) gin.HandlerFunc {
 			return
 		}
 
-		userID, err := facade.ParseToken(token)
+		userID, err := parser.ParseToken(token)
 		if err != nil {
 			if err == pkgAuth.ErrInvalidToken {
 				c.AbortWithStatus(http.StatusUnauthorized)

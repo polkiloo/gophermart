@@ -6,13 +6,12 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 
-	"github.com/polkiloo/gophermart/internal/app"
 	"github.com/polkiloo/gophermart/internal/server/http/handlers"
 	"github.com/polkiloo/gophermart/internal/server/http/middleware"
 )
 
 // Setup configures gin router with handlers and middleware.
-func Setup(facade *app.LoyaltyFacade, logger *slog.Logger) *gin.Engine {
+func Setup(facade handlers.LoyaltyFacade, logger *slog.Logger) *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 

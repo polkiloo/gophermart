@@ -6,6 +6,7 @@ require (
 	github.com/gin-contrib/gzip v1.2.3
 	github.com/gin-gonic/gin v1.10.1
 	github.com/jackc/pgx/v5 v5.7.6
+	github.com/pashagolub/pgxmock/v3 v3.4.0
 	go.uber.org/fx v1.24.0
 	golang.org/x/crypto v0.42.0
 )
