@@ -65,6 +65,7 @@ func (h *BalanceHandler) Withdrawals(c *gin.Context) {
 		return
 	}
 	if len(withdrawals) == 0 {
+		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusNoContent)
 		return
 	}

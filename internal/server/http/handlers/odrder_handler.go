@@ -68,6 +68,7 @@ func (h *OrderHandler) List(c *gin.Context) {
 		return
 	}
 	if len(orders) == 0 {
+		c.Header("Content-Type", "application/json")
 		c.Status(http.StatusNoContent)
 		return
 	}
