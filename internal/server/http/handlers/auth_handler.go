@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/polkiloo/gophermart/internal/app"
 	domainErrors "github.com/polkiloo/gophermart/internal/domain/errors"
 	"github.com/polkiloo/gophermart/internal/server/http/dto"
 	"github.com/polkiloo/gophermart/internal/server/http/middleware"
@@ -14,11 +13,11 @@ import (
 
 // AuthHandler processes registration and login.
 type AuthHandler struct {
-	facade *app.LoyaltyFacade
+	facade AuthFacade
 }
 
 // NewAuthHandler creates AuthHandler instance.
-func NewAuthHandler(facade *app.LoyaltyFacade) *AuthHandler {
+func NewAuthHandler(facade AuthFacade) *AuthHandler {
 	return &AuthHandler{facade: facade}
 }
 

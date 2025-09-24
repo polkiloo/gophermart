@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/polkiloo/gophermart/internal/app"
 	domainErrors "github.com/polkiloo/gophermart/internal/domain/errors"
 	"github.com/polkiloo/gophermart/internal/domain/model"
 	"github.com/polkiloo/gophermart/internal/server/http/dto"
@@ -16,11 +15,11 @@ import (
 
 // OrderHandler manages order-related endpoints.
 type OrderHandler struct {
-	facade *app.LoyaltyFacade
+	facade OrderFacade
 }
 
 // NewOrderHandler constructs OrderHandler.
-func NewOrderHandler(facade *app.LoyaltyFacade) *OrderHandler {
+func NewOrderHandler(facade OrderFacade) *OrderHandler {
 	return &OrderHandler{facade: facade}
 }
 

@@ -16,9 +16,18 @@ import (
 	"github.com/polkiloo/gophermart/internal/domain/repository"
 )
 
+type pgxPool interface {
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+	BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
+	Ping(ctx context.Context) error
+	Close()
+}
+
 // Storage acts as repository facade backed by PostgreSQL.
 type Storage struct {
-	pool   *pgxpool.Pool
+	pool   pgxPool
 	logger *slog.Logger
 }
 
@@ -403,14 +412,4 @@ func (s *Storage) HealthCheck(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 	return s.pool.Ping(ctx)
-}
-
-// Pool exposes raw connection pool for advanced use.
-func (s *Storage) Pool() *pgxpool.Pool {
-	return s.pool
-}
-
-// Logger returns storage logger.
-func (s *Storage) Logger() *slog.Logger {
-	return s.logger
 }
