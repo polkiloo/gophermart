@@ -25,6 +25,10 @@ type pgxPool interface {
 	Close()
 }
 
+var newPgxPool = func(ctx context.Context, cfg *pgxpool.Config) (pgxPool, error) {
+	return pgxpool.NewWithConfig(ctx, cfg)
+}
+
 // Storage acts as repository facade backed by PostgreSQL.
 type Storage struct {
 	pool   pgxPool
@@ -54,7 +58,7 @@ func New(ctx context.Context, dsn string, logger *slog.Logger) (*Storage, error)
 		return nil, fmt.Errorf("parse dsn: %w", err)
 	}
 
-	pool, err := pgxpool.NewWithConfig(ctx, cfg)
+	pool, err := newPgxPool(ctx, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("connect db: %w", err)
 	}
@@ -256,19 +260,29 @@ func (r *orderRepository) SelectBatchForProcessing(ctx context.Context, limit in
 		}
 		defer rows.Close()
 
+		var ids []int64
 		for rows.Next() {
 			var o model.Order
 			if err := rows.Scan(&o.ID, &o.UserID, &o.Number, &o.Status, &o.Accrual, &o.UploadedAt, &o.UpdatedAt); err != nil {
 				return err
 			}
-			if _, err := tx.Exec(ctx, `UPDATE orders SET status='PROCESSING', updated_at=NOW() WHERE id=$1`, o.ID); err != nil {
-				return err
-			}
-			o.Status = model.OrderStatusProcessing
+			ids = append(ids, o.ID)
+
 			orders = append(orders, o)
 		}
 		if err := rows.Err(); err != nil {
 			return err
+		}
+		if len(ids) == 0 {
+			return nil
+		}
+
+		const updateQuery = `UPDATE orders SET status='PROCESSING', updated_at=NOW() WHERE id = ANY($1::bigint[])`
+		if _, err := tx.Exec(ctx, updateQuery, ids); err != nil {
+			return err
+		}
+		for i := range orders {
+			orders[i].Status = model.OrderStatusProcessing
 		}
 		return nil
 	})

@@ -240,6 +240,23 @@ func TestOrderHandlerList(t *testing.T) {
 	}
 }
 
+func TestOrderHandlerListEmptySetsJSONContentType(t *testing.T) {
+	facade := testhelpers.OrderFacadeStub{OrdersFn: func(context.Context, int64) ([]model.Order, error) {
+		return nil, nil
+	}}
+	handler := NewOrderHandler(facade)
+	resp := performRequest(t, http.MethodGet, "/orders", handler.List, func(c *gin.Context) {
+		c.Set(middleware.UserIDContextKey, int64(1))
+	}, nil, nil)
+
+	if resp.Code != http.StatusNoContent {
+		t.Fatalf("expected status 204, got %d", resp.Code)
+	}
+	if got := resp.Header().Get("Content-Type"); got != "application/json" {
+		t.Fatalf("expected Content-Type application/json, got %q", got)
+	}
+}
+
 func TestBalanceHandlerSummary(t *testing.T) {
 	summary := &model.BalanceSummary{Current: 10, Withdrawn: 5}
 	facade := testhelpers.BalanceFacadeStub{BalanceFn: func(context.Context, int64) (*model.BalanceSummary, error) {
@@ -318,5 +335,22 @@ func TestBalanceHandlerWithdrawals(t *testing.T) {
 	}, nil, nil)
 	if resp.Code != http.StatusOK {
 		t.Fatalf("expected status 200, got %d", resp.Code)
+	}
+}
+
+func TestBalanceHandlerWithdrawalsEmptySetsJSONContentType(t *testing.T) {
+	facade := testhelpers.BalanceFacadeStub{WithdrawalsFn: func(context.Context, int64) ([]model.Withdrawal, error) {
+		return nil, nil
+	}}
+	handler := NewBalanceHandler(facade)
+	resp := performRequest(t, http.MethodGet, "/withdrawals", handler.Withdrawals, func(c *gin.Context) {
+		c.Set(middleware.UserIDContextKey, int64(1))
+	}, nil, nil)
+
+	if resp.Code != http.StatusNoContent {
+		t.Fatalf("expected status 204, got %d", resp.Code)
+	}
+	if got := resp.Header().Get("Content-Type"); got != "application/json" {
+		t.Fatalf("expected Content-Type application/json, got %q", got)
 	}
 }
